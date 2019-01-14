@@ -1,7 +1,8 @@
 require "spec_helper"
 describe AJIMS::LTI::OutcomeResponse do
 
-  response_xml = <<-XML
+  let(:response_xml) do
+    <<-XML
 <?xml version="1.0" encoding="UTF-8"?>
 <imsx_POXEnvelopeResponse xmlns="http://www.imsglobal.org/lis/oms1p0/pox">
 <imsx_POXHeader>
@@ -22,6 +23,7 @@ describe AJIMS::LTI::OutcomeResponse do
 </imsx_POXBody>
 </imsx_POXEnvelopeResponse>
   XML
+  end
 
   def mock_response(xml)
     @fake = Object
@@ -90,4 +92,40 @@ describe AJIMS::LTI::OutcomeResponse do
     res.generate_response_xml.should == alt
   end
 
+  describe '#valid' do
+    let(:post_response) { double('res') }
+    let(:response) { AJIMS::LTI::OutcomeResponse.from_post_response(post_response) }
+
+    before do
+      allow(OAuth::AccessToken).to receive(:new).and_return(post_response)
+      allow(post_response).to receive(:code).and_return('200')
+      allow(post_response).to receive(:body).and_return(response_xml)
+    end
+
+    context 'when the response code is 200' do
+      context 'when it parses the response as a valid xml' do
+        it 'returns true' do
+          expect(response).to be_valid
+        end
+      end
+
+      context 'when it cannot parse the response as a valid xml' do
+        let(:response_xml) { '<invalid>xml</document>' }
+
+        it 'returns false' do
+          expect(response).not_to be_valid
+        end
+      end
+    end
+
+    context 'when the response code is not 200' do
+      before do
+        allow(post_response).to receive(:code).and_return('500')
+      end
+
+      it 'returns false' do
+        expect(response).not_to be_valid
+      end
+    end
+  end
 end

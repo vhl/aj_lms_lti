@@ -46,7 +46,7 @@ module AJIMS::LTI
   #
   class OutcomeResponse
     include AJIMS::LTI::Extensions::Base
-    
+
     attr_accessor :request_type, :score, :message_identifier, :response_code,
             :post_response, :code_major, :severity, :description, :operation,
             :message_ref_identifier
@@ -61,6 +61,7 @@ module AJIMS::LTI
       opts.each_pair do |key, val|
         self.send("#{key}=", val) if self.respond_to?("#{key}=")
       end
+      @valid = false
     end
 
     # Convenience method for creating a new OutcomeResponse from a response object
@@ -70,13 +71,20 @@ module AJIMS::LTI
       response = OutcomeResponse.new
       response.process_post_response(post_response)
     end
-    
+
     def process_post_response(post_response)
       self.post_response = post_response
       self.response_code = post_response.code
-      xml = post_response.body
-      self.process_xml(xml)
+      self.process_xml(post_response.body) if self.response_code == '200'
       self
+    end
+
+    def response_body
+      self.post_response.body
+    end
+
+    def valid?
+      @valid
     end
 
     def success?
@@ -117,6 +125,9 @@ module AJIMS::LTI
       @operation = doc.text("//imsx_statusInfo/imsx_operationRefIdentifier")
       @score = doc.text("//readResultResponse//resultScore/textString")
       @score = @score.to_s if @score
+      @valid = true
+    rescue REXML::ParseException
+      @valid = false
     end
 
     # Generate XML based on the current configuration

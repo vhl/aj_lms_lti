@@ -53,6 +53,9 @@ module AJIMS::LTI
 
     CODE_MAJOR_CODES = %w{success processing failure unsupported}
     SEVERITY_CODES = %w{status warning error}
+    XML_NAMESPACES = {
+      'xmlns' => 'http://www.imsglobal.org/services/ltiv1p1/xsd/imsoms_v1p0'
+    }.freeze
 
     # Create a new OutcomeResponse
     #
@@ -136,7 +139,7 @@ module AJIMS::LTI
       builder = Builder::XmlMarkup.new
       builder.instruct!
 
-      builder.imsx_POXEnvelopeResponse("xmlns" => "http://www.imsglobal.org/lis/oms1p0/pox") do |env|
+      builder.imsx_POXEnvelopeResponse(XML_NAMESPACES) do |env|
         env.imsx_POXHeader do |header|
           header.imsx_POXResponseHeaderInfo do |info|
             info.imsx_version "V1.0"

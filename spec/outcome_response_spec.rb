@@ -4,7 +4,7 @@ describe AJIMS::LTI::OutcomeResponse do
   let(:response_xml) do
     <<-XML
 <?xml version="1.0" encoding="UTF-8"?>
-<imsx_POXEnvelopeResponse xmlns="http://www.imsglobal.org/lis/oms1p0/pox">
+<imsx_POXEnvelopeResponse xmlns="http://www.imsglobal.org/services/ltiv1p1/xsd/imsoms_v1p0">
 <imsx_POXHeader>
 <imsx_POXResponseHeaderInfo>
 <imsx_version>V1.0</imsx_version>
